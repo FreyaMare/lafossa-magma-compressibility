@@ -1,0 +1,19 @@
+# Core scientific stack (tested versions in brackets)
+numpy>=1.26          # [2.4.4]
+scipy>=1.11          # [1.17.1]
+pandas>=2.1          # [3.0.2]
+matplotlib>=3.7      # [3.10.8]
+ipython>=8           # display of tables and figures
+jinja2>=3            # pandas Styler for the results table
+
+# EVo dependencies (EVo itself is cloned by notebook cell 1 at a pinned commit)
+pyyaml>=6
+ruamel.yaml>=0.17
+mpmath>=1.2.1
+pydantic>=2.11.1
+
+# Deformation sources (Python port of dMODELS)
+dmodelspy==0.2
+
+# To open the notebook locally
+jupyterlab>=4

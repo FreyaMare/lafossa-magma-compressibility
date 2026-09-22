@@ -1,0 +1,22 @@
+# EVo is cloned at run time by notebook cell 1 - do not commit it
+EVo/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+
+# Test and scratch artefacts
+.pytest_cache/
+executed*.ipynb
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

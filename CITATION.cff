@@ -1,0 +1,57 @@
+cff-version: 1.2.0
+message: "If you use this code, please cite it as below, together with EVo (Liggins et al. 2020, 2022) and dMODELS (Battaglia et al. 2013)."
+title: "La Fossa (Vulcano) - from magma compressibility to surface uplift"
+abstract: >-
+  Google Colab notebook coupling the EVo C-O-H-S degassing code to the Mogi, Yang and Fialko
+  deformation sources (dMODELS) to predict surface uplift at La Fossa volcano (Vulcano Island, Italy)
+  from measured melt compositions and volatile budgets, via the volume-partitioning factor
+  r_V = 1 + beta_m/beta_c. Accompanies the MSc thesis "From magma compressibility to surface
+  deformation at La Fossa volcano (Vulcano Island, Italy)".
+type: software
+authors:
+  - family-names: "Mohammadian"
+    given-names: "Freya"
+    affiliation: "Earth, Environmental and Resources Sciences, University of Naples Federico II"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+version: "1.0.0"
+date-released: "2026-09-22"
+license: GPL-3.0-or-later
+repository-code: "https://github.com/FREYAMARE/lafossa-magma-compressibility"
+keywords:
+  - Vulcano
+  - La Fossa
+  - magma compressibility
+  - volcano deformation
+  - EVo
+  - dMODELS
+  - InSAR
+references:
+  - type: software
+    title: "EVo"
+    authors:
+      - family-names: Liggins
+        given-names: Philippa
+    repository-code: "https://github.com/pipliggins/EVo"
+    license: GPL-3.0
+  - type: article
+    title: "Magma compressibility and the missing source for some dike intrusions"
+    authors:
+      - family-names: Rivalta
+        given-names: Eleonora
+      - family-names: Segall
+        given-names: Paul
+    journal: "Geophysical Research Letters"
+    volume: 35
+    start: "L04306"
+    year: 2008
+    doi: "10.1029/2007GL032521"
+  - type: article
+    title: "Multi-Temporal InSAR, GNSS and Seismic Measurements Reveal the Origin of the 2021 Vulcano Island (Italy) Unrest"
+    authors:
+      - family-names: Di Traglia
+        given-names: Federico
+    journal: "Geophysical Research Letters"
+    volume: 50
+    start: "e2023GL104952"
+    year: 2023
+    doi: "10.1029/2023GL104952"
