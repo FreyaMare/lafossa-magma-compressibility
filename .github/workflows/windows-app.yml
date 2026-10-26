@@ -1,0 +1,73 @@
+name: windows-app
+
+# Builds the Windows program in windows_app/ with the same script a user runs (build_windows.bat),
+# installs the result silently and tests the installed program.
+on:
+  push:
+    branches: [windows-app]
+    paths: ["windows_app/**", ".github/workflows/windows-app.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: windows_app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Inno Setup (makes the setup.exe)
+        shell: cmd
+        run: choco install innosetup -y --no-progress
+
+      - name: Build with build_windows.bat
+        shell: cmd
+        run: build_windows.bat
+
+      - name: Install the setup silently and test the installed program
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem output\MagmaUplift_Setup_*.exe | Select-Object -First 1
+          Start-Process -Wait -FilePath $setup.FullName -ArgumentList "/VERYSILENT", "/CURRENTUSER", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=$pwd\install.log"
+          $exe = Join-Path $env:LOCALAPPDATA "Programs\MagmaUplift\MagmaUplift.exe"
+          if (-not (Test-Path $exe)) { Get-Content install.log -Tail 40; throw "The installed program was not found at $exe" }
+          $p = Start-Process -Wait -PassThru -FilePath $exe -ArgumentList "--check-all", "$pwd\check_all_installed.txt"
+          Get-Content check_all_installed.txt
+          if ($p.ExitCode -ne 0) { throw "check-all of the installed program failed" }
+          $env:MAGMA_SMOKE_SHOTS = "$pwd\screenshots"
+          $p = Start-Process -Wait -PassThru -FilePath $exe -ArgumentList "--smoke"
+          Get-Content (Join-Path (Split-Path $exe) "smoke_result.txt")
+          if ($p.ExitCode -ne 0) { throw "window test of the installed program failed" }
+          Get-ChildItem output | Format-Table Name, Length
+          Get-Content selftest_program.txt
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: MagmaUplift-windows
+          path: |
+            windows_app/output/*
+            windows_app/*.txt
+            windows_app/install.log
+            windows_app/screenshots/*
+          if-no-files-found: warn
+
+      - name: Draft release with the installer (visible only to the repository owner until published)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          Compress-Archive -Path screenshots\*, check_all_installed.txt, selftest_program.txt -DestinationPath output\test_results.zip -Force
+          gh release delete windows-app-v1.0.0 --yes 2>$null
+          gh release create windows-app-v1.0.0 (Get-ChildItem output\*.exe).FullName output\MagmaUplift_portable.zip output\test_results.zip `
+            --draft --target ${{ github.sha }} --title "Magma Compressibility and Surface Uplift 1.0.0 (Windows)" `
+            --notes "Windows installer and portable version, built and tested by the windows-app workflow."
