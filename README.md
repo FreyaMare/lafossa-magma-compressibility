@@ -3,6 +3,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FreyaMare/lafossa-magma-compressibility/blob/main/notebooks/LaFossa_Vulcano_uplift_EVo.ipynb)
 [![tests](https://github.com/FreyaMare/lafossa-magma-compressibility/actions/workflows/tests.yml/badge.svg)](https://github.com/FreyaMare/lafossa-magma-compressibility/actions/workflows/tests.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Download for Windows](https://img.shields.io/badge/Download-Windows%20app-0078D6?logo=windows&logoColor=white)](https://github.com/FreyaMare/lafossa-magma-compressibility/releases/latest)
 
 A reproducible Google Colab notebook that predicts how much the ground at **La Fossa volcano (Vulcano Island, Aeolian Arc, Italy)** rises when magma is injected into each storage level of its plumbing system — and, inverted, how much magma a given uplift implies.
 
@@ -10,11 +11,23 @@ It couples the thermodynamic degassing code **[EVo](https://github.com/pipliggin
 
 This code accompanies the MSc thesis *"From magma compressibility to surface deformation at La Fossa volcano (Vulcano Island, Italy)"*.
 
+## Three ways to use it
+
+| | What it is | Start |
+|---|---|---|
+| **Windows desktop app** | The whole chain for **any volcano** in a Windows program: fill-in tables, ready-made volcanoes, results, report, maps, Excel export. No Python and no internet needed. | [**Download the installer**](https://github.com/FreyaMare/lafossa-magma-compressibility/releases/latest) |
+| **Any-volcano notebook** | The same calculation in Google Colab, with fill-in tables and ready-made inputs for La Fossa, Etna, Campi Flegrei and Kīlauea. | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FreyaMare/lafossa-magma-compressibility/blob/main/notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb) |
+| **La Fossa thesis notebook** | Reproduces the results of the thesis (Scenario A). | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FreyaMare/lafossa-magma-compressibility/blob/main/notebooks/LaFossa_Vulcano_uplift_EVo.ipynb) |
+
+The rest of this page describes the La Fossa thesis notebook; the Windows app and the any-volcano notebook are described in [their own sections](#windows-desktop-app).
+
 ---
 
 ## Contents
 
 - [Why this matters](#why-this-matters)
+- [Windows desktop app](#windows-desktop-app)
+- [Any-volcano notebook](#any-volcano-notebook)
 - [The seven-step chain](#the-seven-step-chain)
 - [Quick start](#quick-start)
 - [What the notebook shows](#what-the-notebook-shows)
@@ -39,6 +52,36 @@ $$r_V = 1 + \frac{\beta_m}{\beta_c}$$
 where $\beta_m$ is the compressibility of the magma (dominated by its exsolved gas) and $\beta_c$ that of the reservoir (set by its shape and by the host-rock stiffness) (Rivalta & Segall, 2008). An injected volume $V_e$ produces a cavity volume change of only $\Delta V_c = V_e / r_V$. For gas-free magma $r_V \approx 1$–3; for gas-rich magma in a stiff reservoir it can exceed 10, so that most of an intrusion is invisible at the surface.
 
 This notebook computes $r_V$ — and the resulting uplift — for every storage level of Vulcano from measured petrological data.
+
+## Windows desktop app
+
+![The Windows app](docs/images/app/results.png)
+
+A Windows program that runs the complete chain for **any volcano** — any number of magmas and reservoirs, any depth
+and source shape (Mogi, finite sphere, prolate spheroid, penny-shaped crack), any volatile budget, redox state and
+gas fugacities. It is the desktop edition of the any-volcano notebook and gives exactly the same numbers.
+
+- **Install:** download `MagmaUplift_Setup_<version>.exe` from the [latest release](https://github.com/FreyaMare/lafossa-magma-compressibility/releases/latest) and run it (no
+  administrator rights needed). Windows may warn that the installer is not code-signed: *More info ▸ Run anyway*.
+  A portable zip is attached to the release as well.
+- **Use:** *Examples ▾* (La Fossa, Etna, Campi Flegrei, Kīlauea) → *▶ Run* → *Results* and *Report*. The *User guide*
+  tab inside the program explains every step; tables accept copy and paste from Excel; projects are saved as `.mcu`
+  files; results can be exported to Excel and the report to HTML.
+- **Source, build and tests:** [`windows_app/`](windows_app/README.md). Every build is installed and tested on
+  Windows by the [`windows-app`](.github/workflows/windows-app.yml) workflow.
+
+Developed by Freya Mohammadian · [freya.mohammadian@gmail.com](mailto:freya.mohammadian@gmail.com) ·
+[LinkedIn](https://www.linkedin.com/in/freya-mohammadian-14614a135)
+
+## Any-volcano notebook
+
+[`notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb`](notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb)
+([open in Colab](https://colab.research.google.com/github/FreyaMare/lafossa-magma-compressibility/blob/main/notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb)) generalises the thesis notebook to any volcano. It contains the complete source code
+of EVo 1.1.0 and dmodelspy 0.2, so the whole chain runs inside Colab. Inputs are typed into
+fill-in tables (magmas, reservoirs, optional manual EVo values) and form fields; ready-made inputs for **Etna,
+Campi Flegrei and Kīlauea**, compiled from published petrology and geodesy, are documented value by value in
+[`docs/Input_data_Etna_CampiFlegrei_Kilauea.pdf`](docs/Input_data_Etna_CampiFlegrei_Kilauea.pdf). With the La Fossa
+example it reproduces the thesis results.
 
 ## The seven-step chain
 
@@ -147,14 +190,19 @@ The automated test in `tests/` executes the whole notebook and checks every $r_V
 ```
 lafossa-magma-compressibility/
 ├── notebooks/
-│   └── LaFossa_Vulcano_uplift_EVo.ipynb   # the notebook (8 code cells)
+│   ├── LaFossa_Vulcano_uplift_EVo.ipynb   # the thesis notebook (8 code cells)
+│   └── Magma_Compressibility_Uplift_AnyVolcano.ipynb   # any volcano, EVo and dMODELS embedded
+├── windows_app/                           # the Windows desktop app: source, build, installer (see its README)
 ├── docs/
 │   ├── DATA_SOURCES.md                    # provenance of every input value
 │   ├── METHODS.md                         # equations of the chain
+│   ├── Input_data_Etna_CampiFlegrei_Kilauea.pdf   # inputs of the ready-made volcanoes, with sources
+│   ├── images/app/                        # screenshots of the Windows app
 │   └── example_output.html                # a full rendered run (open in a browser)
 ├── tests/
 │   └── test_notebook.py                   # executes the notebook, checks the numbers
 ├── .github/workflows/tests.yml            # runs the test on every push
+├── .github/workflows/windows-app.yml      # builds, installs and tests the Windows app; drafts its release
 ├── requirements.txt
 ├── environment.yml
 ├── CITATION.cff
@@ -166,7 +214,7 @@ lafossa-magma-compressibility/
 ## Running locally and testing
 
 ```bash
-git clone https://github.com/USERNAME/lafossa-magma-compressibility.git
+git clone https://github.com/FreyaMare/lafossa-magma-compressibility.git
 cd lafossa-magma-compressibility
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -188,7 +236,7 @@ If you use this code, please cite the thesis (see [`CITATION.cff`](CITATION.cff)
 
 ## Licence
 
-**GPL-3.0-or-later.** The notebook imports EVo, which is distributed under GPL-3.0; licensing this repository under the same terms keeps the combined work compatible. EVo itself is not redistributed here — it is cloned from its own repository at run time. `dmodelspy` is installed from PyPI under its own terms.
+**GPL-3.0-or-later.** EVo and dmodelspy are distributed under GPL-3.0; licensing this repository under the same terms keeps the combined work compatible. The La Fossa thesis notebook clones EVo from its own repository at run time and installs `dmodelspy` from PyPI. The any-volcano notebook and the Windows app contain the complete, unmodified source code of EVo 1.1.0 (P. Liggins, O. Shorttle, P. B. Rimmer) and dmodelspy 0.2 (W. Crawford, Python port of dMODELS), with their credits and the adaptations listed in the notebook.
 
 ## References
 

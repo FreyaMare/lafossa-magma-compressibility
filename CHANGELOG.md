@@ -1,5 +1,18 @@
 # Changelog
 
+## [Windows app 1.0.1] — 2026-10-27
+### Added
+- `windows_app/`: Windows desktop edition of the any-volcano notebook (PySide6), with installer and portable
+  version. It runs the notebook's cells verbatim, so its results are identical; fill-in tables with Excel copy and
+  paste, ready-made volcanoes, project files, Excel and HTML export, uplift map, EVo calculator, a user guide for
+  first-time users, and self-tests (`--selftest`, `--check-all`).
+- `notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb`: the chain for any volcano, any number of magmas and
+  reservoirs, all source shapes, EVo modes, redox options and fugacities; EVo 1.1.0 and dmodelspy 0.2 embedded;
+  ready-made inputs for Etna, Campi Flegrei and Kīlauea.
+- `docs/Input_data_Etna_CampiFlegrei_Kilauea.pdf`: every input value of the ready-made volcanoes with its source.
+- `.github/workflows/windows-app.yml`: builds the app on Windows, installs it, tests the installed program and
+  drafts a release with the installer.
+
 ## [1.0.0] — 2026-09-22
 First public release, accompanying the MSc thesis.
 
