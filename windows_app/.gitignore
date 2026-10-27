@@ -1,0 +1,8 @@
+# created by build_windows.bat
+.venv-build/
+build/
+dist/
+output/
+*_result.txt
+selftest_source.txt
+selftest_program.txt
