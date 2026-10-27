@@ -136,10 +136,17 @@ def smoke(seconds=600):
         shots = os.environ.get("MAGMA_SMOKE_SHOTS")          # folder for screenshots of the main tabs
         if shots:
             os.makedirs(shots, exist_ok=True)
-            for i, name in ((0, "magmas"), (1, "reservoirs"), (3, "settings"), (4, "results"), (5, "report")):
+            for i, name in ((0, "magmas"), (1, "reservoirs"), (2, "manual"), (3, "settings"), (4, "results"),
+                            (5, "report"), (8, "guide")):
                 w.tabs.setCurrentIndex(i)
                 app.processEvents()
                 w.grab().save(os.path.join(shots, f"{i}_{name}.png"))
+            from .about import AboutDialog
+            dlg = AboutDialog(w)
+            dlg.show()
+            app.processEvents()
+            dlg.grab().save(os.path.join(shots, "9_about.png"))
+            dlg.close()
         app.quit()
     QTimer.singleShot(200, lambda: (w.run_all(), w.worker.finished.connect(lambda: QTimer.singleShot(300, finished))))
     QTimer.singleShot(seconds * 1000, app.quit)

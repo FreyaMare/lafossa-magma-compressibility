@@ -17,7 +17,7 @@ EVo (step 2) + magma and chamber compressibility + dMODELS deformation sources (
 4. برای ساختن فایل نصب (setup.exe) برنامه‌ی رایگان **Inno Setup** لازم است؛ اگر نصب نباشد اسکریپت می‌پرسد
    که آن را با winget نصب کند (کلید Y).
 5. نتیجه در پوشه‌ی `output`:
-   - `MagmaUplift_Setup_1.0.0.exe` — فایل نصب (بدون نیاز به دسترسی Administrator؛ میانبر در منوی Start،
+   - `MagmaUplift_Setup_1.0.1.exe` — فایل نصب (بدون نیاز به دسترسی Administrator؛ میانبر در منوی Start،
      حذف از Settings ▸ Apps)
    - `MagmaUplift_portable.zip` — همان برنامه بدون نصب (از حالت فشرده خارج کنید و `MagmaUplift.exe` را اجرا کنید)
 
@@ -40,7 +40,7 @@ Double-click `build_windows.bat`. It
 3. builds the program with PyInstaller (`MagmaUplift.spec`) into `dist\MagmaUplift`;
 4. runs the self-test again inside the built program;
 5. writes `output\MagmaUplift_portable.zip` and, with Inno Setup 6 (offered via winget if missing),
-   the installer `output\MagmaUplift_Setup_1.0.0.exe` (`installer.iss`).
+   the installer `output\MagmaUplift_Setup_1.0.1.exe` (`installer.iss`).
 
 Command-line options of the program:
 

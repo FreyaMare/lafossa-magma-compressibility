@@ -20,6 +20,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 from . import nbcells  # noqa: E402
+from .terms import TITLES, app_text  # noqa: E402
 
 PARAM_RE = re.compile(r"^(?P<name>\w+)\s*=\s*(?P<value>.+?)\s*#@param\s*(?P<spec>.*)$")
 
@@ -176,7 +177,7 @@ class Notebook:
             plt.close("all")
             self.outputs[cell] = list(_sink.parts)
             input_error = type(e).__name__ == "InputError"
-            msg = str(e) if input_error else "".join(traceback.format_exception_only(type(e), e)).strip()
+            msg = app_text(str(e)) if input_error else "".join(traceback.format_exception_only(type(e), e)).strip()
             if not input_error:
                 msg += "\n\n" + "".join(traceback.format_exception(type(e), e, e.__traceback__)[-6:])
             raise CellError(cell, msg, input_error) from None
@@ -227,8 +228,8 @@ class Notebook:
         for c in cells:
             if c not in self.outputs:
                 continue
-            parts.append(f'<h2 class="cellhead">{c}. {html.escape(nbcells.TITLES[c])}</h2>')
-            parts += [p.replace(self.css, "") for p in self.outputs[c]]
+            parts.append(f'<h2 class="cellhead">{html.escape(TITLES.get(c, nbcells.TITLES[c]))}</h2>')
+            parts += [app_text(p.replace(self.css, "")) for p in self.outputs[c]]
         css = QT_CSS if for_qt else self.css.replace("<style>", "<style>\nbody{margin:18px;background:#fff}"
                                                      "\nh2.cellhead{font-family:Arial,sans-serif;color:#1F4E79;"
                                                      "border-bottom:2px solid #1F4E79;margin-top:28px}\n"

@@ -19,6 +19,10 @@ from PySide6.QtWidgets import (QMainWindow, QTabWidget, QWidget, QVBoxLayout, QH
 from . import nbcells, __version__
 from .runner import params_of, CellError, REPORT_CELLS, MAP_CELL, CALC_CELL
 from .table_editor import TableEditor
+from .terms import TAB, TITLES, app_text, hint_text
+from .guide import guide_html
+from .about import AboutDialog
+import copy
 
 SETTINGS_CELLS = (4, 7, 12, 14, 18)
 TABLE_KEYS = ("magmas", "reservoirs", "step2")
@@ -69,7 +73,7 @@ class ParamForm(QWidget):
         lay.setContentsMargins(4, 4, 4, 4)
         combos = combos or {}
         for cell in cells:
-            box = QGroupBox(f"{cell}. {nbcells.TITLES[cell]}")
+            box = QGroupBox(TITLES.get(cell, nbcells.TITLES[cell]))
             box.setStyleSheet("QGroupBox{font-weight:bold;color:#1F4E79;margin-top:10px}"
                               "QGroupBox::title{subcontrol-origin:margin;left:8px}")
             form = QFormLayout(box)
@@ -78,7 +82,7 @@ class ParamForm(QWidget):
                 if p["name"] in skip:
                     continue
                 if p["description"]:
-                    d = QLabel(md_inline(p["description"]))
+                    d = QLabel(md_inline(app_text(p["description"])))
                     d.setWordWrap(True)
                     d.setStyleSheet("color:#333;font-weight:normal;margin-top:6px")
                     form.addRow(d)
@@ -99,9 +103,10 @@ class ParamForm(QWidget):
             w.toggled.connect(self.changed)
         elif kind == "choice":
             w = QComboBox()
-            w.addItems([str(o) for o in p["options"]])
-            w.setCurrentText(str(v))
-            w.currentTextChanged.connect(self.changed)
+            for o in p["options"]:
+                w.addItem(app_text(str(o)), str(o))          # shown text / value used by the calculation
+            w.setCurrentIndex(max(w.findData(str(v)), 0))
+            w.currentIndexChanged.connect(self.changed)
         elif combo_source is not None:
             w = QComboBox()
             w.setEditable(True)
@@ -135,7 +140,7 @@ class ParamForm(QWidget):
             if kind == "boolean":
                 out[name] = w.isChecked()
             elif isinstance(w, QComboBox):
-                out[name] = w.currentText()
+                out[name] = w.currentText() if w.isEditable() else w.currentData()
             else:
                 t = w.text().strip()
                 if kind in ("number", "integer"):
@@ -156,7 +161,10 @@ class ParamForm(QWidget):
             if isinstance(w, QCheckBox):
                 w.setChecked(bool(v))
             elif isinstance(w, QComboBox):
-                w.setEditText(str(v)) if w.isEditable() else w.setCurrentText(str(v))
+                if w.isEditable():
+                    w.setEditText(str(v))
+                elif w.findData(str(v)) >= 0:
+                    w.setCurrentIndex(w.findData(str(v)))
             else:
                 w.setText(f"{v:g}" if isinstance(v, float) else str(v))
             w.blockSignals(False)
@@ -229,7 +237,7 @@ class MainWindow(QMainWindow):
         self.resize(1360, 860)
 
         # ------------------------------------------------ tables
-        self.editors = {k: TableEditor(k, nb.specs[k], nb.split_text) for k in TABLE_KEYS}
+        self.editors = {k: TableEditor(k, _app_spec(nb.specs[k]), nb.split_text) for k in TABLE_KEYS}
         mag, res, s2 = (self.editors[k] for k in TABLE_KEYS)
         res.ref_sources["magmas"] = mag.names
         s2.ref_sources["reservoirs"] = res.names
@@ -246,19 +254,28 @@ class MainWindow(QMainWindow):
 
         # ------------------------------------------------ tabs
         self.tabs = QTabWidget()
-        self.tabs.addTab(self._wrap(mag, "Magmas — one column per magma. The guide (last tab) explains every row."),
-                         "Magmas (cell 5)")
-        self.tabs.addTab(self._wrap(res, "Reservoirs — one row per reservoir, or per geometry to test."),
-                         "Reservoirs (cell 6)")
-        self.tabs.addTab(self._wrap(s2, "Optional: step-2 values entered by hand. Leave empty to compute step 2 with "
-                                        "EVo for every reservoir; a row replaces EVo for the resident magma of one "
-                                        "reservoir (only φ enters the chain)."), "Step 2 by hand (cell 8)")
-        self.tabs.addTab(self._scroll(self.settings), "Settings (cells 4, 7, 12, 14, 18)")
-        self.tabs.addTab(self._results_tab(), "Results")
-        self.tabs.addTab(self._report_tab(), "Report")
-        self.tabs.addTab(self._cell_tab(self.map_form, "Draw the map", self.draw_map), "Map (cell 16)")
-        self.tabs.addTab(self._cell_tab(self.calc_form, "Calculate", self.calculate), "EVo calculator (cell 17)")
-        self.tabs.addTab(self._guide_tab(), "Guide")
+        self.tabs.addTab(self._wrap(mag, "Magmas", "One column per magma: type, temperature, volatiles, redox state "
+                                    "and composition. An empty cell means “not given” — the grey text shows what is "
+                                    "used instead. Every row is explained in the User guide."), TAB["magmas"])
+        self.tabs.addTab(self._wrap(res, "Magma reservoirs", "One row per reservoir, or per geometry you want to "
+                                    "compare: shape, depth, volume, injected volumes, the magma that fills it and the "
+                                    "stiffness of the host rock."), TAB["reservoirs"])
+        self.tabs.addTab(self._wrap(s2, "Manual EVo values (optional)", "Normally empty: EVo then computes the gas "
+                                    "content of every reservoir. Add a row only to replace EVo's result for one "
+                                    "reservoir with your own values (only the vapour fraction φ enters the "
+                                    "calculation)."), TAB["manual"])
+        self.tabs.addTab(self._scroll(self.settings), TAB["settings"])
+        self.tabs.addTab(self._results_tab(), TAB["results"])
+        self.tabs.addTab(self._report_tab(), TAB["report"])
+        self.tabs.addTab(self._cell_tab(self.map_form, "Draw the map", self.draw_map), TAB["map"])
+        self.tabs.addTab(self._cell_tab(self.calc_form, "Calculate", self.calculate), TAB["calc"])
+        self.tabs.addTab(self._guide_tab(), TAB["guide"])
+        for i, tip in enumerate(["Input: the magmas", "Input: the magma reservoirs",
+                                 "Input (optional): your own values instead of EVo's gas calculation",
+                                 "Input: general settings and EVo options", "Output: the result table",
+                                 "Output: the full report with figures", "Output: uplift map of one reservoir",
+                                 "Tool: EVo for one magma at any pressure", "How to use the program"]):
+            self.tabs.setTabToolTip(i, tip)
         self.tabs.currentChanged.connect(self._tab_changed)
         self.setCentralWidget(self.tabs)
         self._toolbar()
@@ -269,13 +286,14 @@ class MainWindow(QMainWindow):
 
     # ================================================================== layout helpers
     @staticmethod
-    def _wrap(w, text):
+    def _wrap(w, title, text):
         box = QWidget()
         lay = QVBoxLayout(box)
         lay.setContentsMargins(4, 4, 4, 4)
-        lab = QLabel(text)
+        lab = QLabel(f"<span style='font-size:12pt;font-weight:600;color:#1F4E79'>{title}</span>"
+                     f"<br><span style='color:#333'>{text}</span>")
         lab.setWordWrap(True)
-        lab.setStyleSheet("color:#1F4E79;font-weight:bold;padding:4px")
+        lab.setStyleSheet("padding:4px 6px")
         lay.addWidget(lab)
         lay.addWidget(w, 1)
         return box
@@ -325,12 +343,13 @@ class MainWindow(QMainWindow):
         b2.clicked.connect(self.open_report)
         top.addWidget(b1)
         top.addWidget(b2)
-        top.addWidget(QLabel("  The web-browser view shows the report with the notebook's full layout."))
+        top.addWidget(QLabel("  The web-browser view shows the report in its full layout."))
         top.addStretch(1)
         lay.addLayout(top)
         self.report = self._browser()
-        self.report.setHtml("<p style='color:#555'>Run the calculation (▶ Run, F5): every table, note and figure "
-                            "of cells 10–18 of the notebook appears here.</p>")
+        self.report.setHtml("<p style='color:#555'>Press ▶ Run (F5). The full report appears here: the input "
+                            "check, every calculation step, the complete EVo output, the uplift tables, "
+                            "detectability and the figures.</p>")
         lay.addWidget(self.report, 1)
         return w
 
@@ -355,13 +374,9 @@ class MainWindow(QMainWindow):
 
     def _guide_tab(self):
         b = self._browser()
-        legend = ("<p style='background:#eef4fb;padding:6px'><b>Cells and tabs.</b> This program runs the code of the "
-                  "notebook; the cell numbers mentioned in the texts are the tabs of this window: cell 4, 7, 12, 14, 18 "
-                  "→ <i>Settings</i>; cell 5 → <i>Magmas</i>; cell 6 → <i>Reservoirs</i>; cell 8 → <i>Step 2 by hand</i>; "
-                  "cells 10–18 → <i>Report</i>; cell 16 → <i>Map</i>; cell 17 → <i>EVo calculator</i>. In the tables, "
-                  "double-click or start typing to edit a cell; Ctrl+C / Ctrl+V copy and paste blocks of cells (also "
-                  "to and from Excel); Delete empties the selected cells; Ctrl+Z undoes.</p>")
-        b.setHtml(legend + nbcells.INTRO_HTML + nbcells.GUIDE_HTML + nbcells.REFS_HTML)
+        b.setOpenExternalLinks(False)
+        b.setOpenLinks(True)
+        b.setHtml(guide_html(self.nb.specs))
         return b
 
     def _toolbar(self):
@@ -391,7 +406,7 @@ class MainWindow(QMainWindow):
         act("Save", self.save_project, "Ctrl+S")
         act("Save as…", lambda: self.save_project(as_new=True), "Ctrl+Shift+S")
         tb.addSeparator()
-        self.run_action = act("▶ Run", self.run_all, "F5", "Run the whole calculation (cells 10–18 of the notebook)")
+        self.run_action = act("▶ Run", self.run_all, "F5", "Run the whole calculation (F5)")
         f = self.run_action.font()
         f.setBold(True)
         self.run_action.setFont(f)
@@ -561,7 +576,8 @@ class MainWindow(QMainWindow):
         start = self.start_from or self.nb.labels["empty"]
         self.worker = Worker(lambda progress: fn(tables, settings, start, progress))
         self.worker.progress.connect(lambda c, t: (self.prog.setValue(c),
-                                                   self.statusBar().showMessage(f"{label}  cell {c}: {t}")))
+                                                   self.statusBar().showMessage(
+                                                       f"{label}  {TITLES.get(c, t)}")))
         self.worker.done.connect(lambda r: self._finished(r, on_done))
         self.worker.failed.connect(self._failed)
         self.worker.start()
@@ -590,7 +606,8 @@ class MainWindow(QMainWindow):
             self.tabs.setCurrentIndex(tab)
             QMessageBox.warning(self, "Please correct the input", msg)
         else:
-            cell = f"cell {e.cell} ({nbcells.TITLES[e.cell]})" if isinstance(e, CellError) else "the calculation"
+            cell = (f"“{TITLES.get(e.cell, nbcells.TITLES[e.cell])}”" if isinstance(e, CellError)
+                    else "the calculation")
             QMessageBox.critical(self, "Calculation stopped", f"The calculation stopped in {cell}:\n\n{e}")
         self.statusBar().showMessage("Stopped — see the message.", 10000)
 
@@ -701,10 +718,13 @@ class MainWindow(QMainWindow):
                 xw, sheet_name="Settings", index=False)
 
     def about(self):
-        QMessageBox.about(self, "About", (
-            f"<h3>From magma compressibility to surface uplift</h3><p>Desktop version {__version__} of the notebook "
-            "<i>Magma_Compressibility_Uplift_AnyVolcano</i> (F. Mohammadian, MSc thesis). It runs the notebook's own "
-            "code: EVo (thermodynamic degassing model, Liggins, Shorttle &amp; Rimmer 2020; Liggins et al. 2022; "
-            "v1.1.0, GPL-3.0) and dmodelspy 0.2 (Python port of dMODELS, Battaglia, Cervelli &amp; Murray 2013; "
-            "GPL-3.0).</p><p>This program is free software under the GNU General Public License v3 or later; it comes "
-            "with no warranty. The licence text is in the program folder (LICENSE.txt).</p>"))
+        AboutDialog(self).exec()
+
+
+def _app_spec(spec):
+    """Field lists of the tables with the program's wording (cell numbers → tab names)."""
+    sp = copy.deepcopy(spec)
+    for f in sp["fields"]:
+        f["help"], f["group"] = app_text(f["help"]), app_text(f["group"])
+        f["hint"] = hint_text(f["hint"])
+    return sp
