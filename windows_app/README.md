@@ -1,97 +1,119 @@
-# Magma Compressibility and Surface Uplift — Windows program
+# Magma Compressibility and Surface Uplift — Windows app
 
-Desktop version of the notebook *Magma_Compressibility_Uplift_AnyVolcano.ipynb*:
-EVo (step 2) + magma and chamber compressibility + dMODELS deformation sources (steps 3–7), for any volcano.
+A Windows desktop program that runs the seven-step chain of this repository — **EVo** degassing
+thermodynamics → magma and chamber compressibility → **dMODELS** deformation sources — for **any volcano**.
+It is the desktop edition of
+[`notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb`](../notebooks/Magma_Compressibility_Uplift_AnyVolcano.ipynb)
+and gives exactly the same numbers.
 
----
+Developed by **Freya Mohammadian** · [freya.mohammadian@gmail.com](mailto:freya.mohammadian@gmail.com) ·
+[GitHub](https://github.com/FreyaMare) · [LinkedIn](https://www.linkedin.com/in/freya-mohammadian-14614a135)
 
-## راهنمای سریع ساخت برنامه (فارسی)
+![Magmas table](../docs/images/app/magmas.png)
 
-1. **پایتون** را نصب کنید (فقط یک بار): نسخه‌ی 3.12، 3.13 یا 3.14 از
-   https://www.python.org/downloads/windows/ — هنگام نصب گزینه‌ی **Add python.exe to PATH** را تیک بزنید.
-   (یا در Command Prompt:  `winget install -e --id Python.Python.3.13`)
-2. این پوشه را از حالت فشرده (zip) خارج کنید، مثلاً در `C:\MagmaUplift_build`
-   (بهتر است مسیر پوشه کوتاه باشد و داخل OneDrive نباشد).
-3. روی فایل **`build_windows.bat`** دوبار کلیک کنید. بار اول حدود ۴۰۰ مگابایت بسته دانلود می‌شود و ساخت
-   حدود ۵ تا ۱۵ دقیقه طول می‌کشد. اسکریپت خودش محاسبات را قبل و بعد از ساخت آزمایش می‌کند.
-4. برای ساختن فایل نصب (setup.exe) برنامه‌ی رایگان **Inno Setup** لازم است؛ اگر نصب نباشد اسکریپت می‌پرسد
-   که آن را با winget نصب کند (کلید Y).
-5. نتیجه در پوشه‌ی `output`:
-   - `MagmaUplift_Setup_1.0.1.exe` — فایل نصب (بدون نیاز به دسترسی Administrator؛ میانبر در منوی Start،
-     حذف از Settings ▸ Apps)
-   - `MagmaUplift_portable.zip` — همان برنامه بدون نصب (از حالت فشرده خارج کنید و `MagmaUplift.exe` را اجرا کنید)
+## Download and install
 
-برنامه‌ی نصب‌شده به پایتون و اینترنت نیازی ندارد و می‌توانید فایل setup را به دیگران بدهید. چون فایل امضای
-دیجیتال ندارد، ویندوز روی کامپیوتر دیگران ممکن است پیام «Windows protected your PC» نشان دهد:
-**More info ▸ Run anyway**.
+1. Open the [latest release](https://github.com/FreyaMare/lafossa-magma-compressibility/releases/latest) and
+   download **`MagmaUplift_Setup_<version>.exe`**.
+2. Run it. No administrator rights are needed; the program is installed for your user account with a Start-menu
+   entry (uninstall from *Settings ▸ Apps*).
+3. Windows may show *“Windows protected your PC”* because the installer is not code-signed: click
+   **More info ▸ Run anyway**.
 
----
+Prefer no installation? Download **`MagmaUplift_portable.zip`**, unzip it anywhere and start `MagmaUplift.exe`.
 
-## Building (English)
+Requirements: Windows 10 or 11, 64-bit, about 300 MB of disk space. Python is **not** needed.
 
-Requirements: Windows 10/11 (64-bit), Python 3.12, 3.13 or 3.14 from python.org, internet for the first build,
-about 3 GB of free disk space.
+## Using the program
 
-Double-click `build_windows.bat`. It
+Click **Examples ▾** (La Fossa, Etna, Campi Flegrei, Kīlauea), look at the tables, press **▶ Run** (F5) and read
+the **Results** and **Report** tabs. The **User guide** tab inside the program explains everything step by step.
 
-1. finds Python and creates a private environment `.venv-build` with the exact package versions of
-   `requirements.txt` / `constraints.txt` (the versions the program was tested with);
-2. runs the self-test of the calculation from the source code;
-3. builds the program with PyInstaller (`MagmaUplift.spec`) into `dist\MagmaUplift`;
-4. runs the self-test again inside the built program;
-5. writes `output\MagmaUplift_portable.zip` and, with Inno Setup 6 (offered via winget if missing),
-   the installer `output\MagmaUplift_Setup_1.0.1.exe` (`installer.iss`).
+| Tab | Contents |
+|---|---|
+| **Magmas** | one column per magma: type, temperature, volatiles, redox state, composition |
+| **Reservoirs** | one row per reservoir (or geometry to compare): shape, depth, volume, injected volumes, magmas, host rock |
+| **Manual EVo values** | optional: your own vapour fractions instead of EVo's for chosen reservoirs |
+| **Settings** | crust density, default elasticity, observation distances, EVo options, report options |
+| **Results** | the result table (main or all columns) |
+| **Report** | every table, note and figure of the calculation; save as HTML or open in the web browser |
+| **Uplift map** | map of the uplift around one reservoir |
+| **EVo calculator** | one magma at any pressure |
+| **User guide** | how to use the program, reference of every row and column |
 
-Command-line options of the program:
+* Tables work like a spreadsheet: type to edit, Ctrl+C / Ctrl+V (also to and from Excel), Delete, Ctrl+Z.
+  Grey text shows what an empty cell means; a red cell is not a number.
+* **Save / Open** keep projects as `.mcu` files; the last session is restored automatically.
+* **Export to Excel** writes the results, the EVo states, the input tables and the settings.
+
+| | |
+|---|---|
+| ![Results](../docs/images/app/results.png) | ![Report](../docs/images/app/report.png) |
+| ![User guide](../docs/images/app/user_guide.png) | ![About](../docs/images/app/about.png) |
+
+### Command-line options
 
 | Command | What it does |
 |---|---|
-| `MagmaUplift.exe` | opens the window (restores your last session) |
+| `MagmaUplift.exe` | opens the window (restores the last session) |
 | `MagmaUplift.exe project.mcu` | opens a project file |
 | `MagmaUplift.exe --selftest [file]` | thesis example, compared with the verified notebook results (≈ 10 s) |
 | `MagmaUplift.exe --check-all [file]` | the four ready-made volcanoes, a test volcano using every EVo mode, the EVo calculator and the map (≈ 2 min) |
 
-The result of `--selftest` / `--check-all` is written to `selftest_result.txt` / `check_all_result.txt` next to
-the program (or to the file given).
+The results of `--selftest` / `--check-all` are written to `selftest_result.txt` / `check_all_result.txt` next to
+the program, or to the file given.
 
-Without building, the program also runs directly from this folder:
-`python -m pip install -r requirements.txt` and then `python run_app.py`.
+## How the program works
 
-## Using the program
+`magma_uplift/nbcells.py` holds the 18 code cells of the any-volcano notebook, copied verbatim (EVo 1.1.0 and
+dmodelspy 0.2 are embedded in cells 2 and 3). `magma_uplift/runner.py` runs them in one Python namespace, as a
+Jupyter kernel would: the form fields take the values of the *Settings* tab, the fill-in tables come from the
+window, and everything a cell displays goes into the *Report*. The results are therefore identical to the
+notebook's; the self-tests compare them with the stored notebook results.
 
-| Tab | Notebook cell | Contents |
-|---|---|---|
-| Magmas | 5 | one column per magma (fill-in table) |
-| Reservoirs | 6 | one row per reservoir or geometry |
-| Step 2 by hand | 8 | optional values that replace EVo for chosen reservoirs |
-| Settings | 4, 7, 12, 14, 18 | crust, elasticity, observation points, EVo options, report options |
-| Results | 11, 13 | the result table (main or all columns) |
-| Report | 10–18 | every table, note and figure of the notebook; save as HTML or open in the browser |
-| Map | 16 | uplift map of one reservoir |
-| EVo calculator | 17 | one magma at any pressure |
-| Guide | — | the notebook's introduction, input guide and references |
+| Path | Contents |
+|---|---|
+| `run_app.py` | entry point |
+| `magma_uplift/` | the program: `runner.py` (runs the cells), `main_window.py`, `table_editor.py`, `guide.py`, `about.py`, `terms.py` (notebook wording → tab names), `app.py` (start-up and self-tests) |
+| `magma_uplift/nbcells.py` | the notebook cells (generated) |
+| `magma_uplift/selftest_reference.json`, `check_cases.json` | verified notebook results used by the self-tests |
+| `tools/make_cells.py` | regenerates `nbcells.py` from the notebook |
+| `tools/collect_imports.py` | regenerates `hiddenimports.json` (modules the cells import at run time) |
+| `requirements.txt`, `constraints.txt` | exact package versions of the tested build |
+| `MagmaUplift.spec`, `installer.iss`, `build_windows.bat` | PyInstaller recipe, Inno Setup installer, one-click build |
+| `RELEASE_NOTES.md` | text of the GitHub release |
 
-* **Examples ▾** loads La Fossa (thesis), Etna, Campi Flegrei or Kīlauea; **New** gives empty tables.
-* Tables: double-click or type to edit; Ctrl+C / Ctrl+V copy and paste blocks of cells (also to and from Excel);
-  Delete empties the selected cells; Ctrl+Z / Ctrl+Y undo and redo; grey text shows what an empty cell means;
-  a red cell is not a number. *Text view…* shows a table as text and accepts a pasted one.
-* **▶ Run** (F5) runs the calculation; an input error is shown in plain words and the program switches to the
-  table concerned.
-* **Save / Open** keep projects as `.mcu` files; the last session is restored automatically.
-* **Export to Excel** writes the results, the EVo states, the input tables and the settings.
+### Run from source (any operating system)
 
-## How the program is built
+```bash
+cd windows_app
+python -m pip install -r requirements.txt -c constraints.txt
+python run_app.py
+```
 
-`magma_uplift/nbcells.py` holds the 18 code cells of the notebook, copied verbatim (EVo 1.1.0 and dmodelspy 0.2
-are embedded in cells 2 and 3). `magma_uplift/runner.py` runs them in one Python namespace like a Jupyter
-kernel: the form fields take the values of the Settings tab, the fill-in tables come from the window, and the
-displayed HTML and figures go into the report. The results are therefore identical to the notebook's
-(checked bit for bit for all four volcanoes and the test volcano). `hiddenimports.json` lists the modules the
-cells import at run time, which PyInstaller cannot see by itself.
+### Build the Windows installer yourself
 
-## Licence
+On Windows 10/11 with Python 3.12, 3.13 or 3.14 from python.org, double-click **`build_windows.bat`**. It creates a
+private environment `.venv-build` with the pinned packages, runs the self-test from source, builds the program
+with PyInstaller into `dist\MagmaUplift`, runs the self-test inside the built program, and writes
+`output\MagmaUplift_portable.zip` and — with Inno Setup 6, which it offers to install via winget —
+`output\MagmaUplift_Setup_<version>.exe`. The first build downloads about 400 MB and takes 5–15 minutes.
 
-EVo (P. Liggins, O. Shorttle, P. B. Rimmer; github.com/pipliggins/EVo) and dmodelspy (W. Crawford, Python port of
-dMODELS, Battaglia, Cervelli & Murray 2013) are distributed under the GNU General Public License v3; this program
-contains them and is distributed under the GNU GPL v3 or later (LICENSE.txt). If you give the program to others,
-give them access to this source folder as well (for example through your GitHub repository).
+### Automatic builds and releases
+
+The workflow [`.github/workflows/windows-app.yml`](../.github/workflows/windows-app.yml) runs on GitHub's Windows
+machines whenever `windows_app/` changes on `main`: it runs `build_windows.bat`, installs the setup silently,
+tests the installed program (`--check-all` and a window test with screenshots) and creates a **draft release**
+`windows-app-v<version>` with the installer, the portable zip and the test results. Publishing the draft makes it
+public.
+
+**New version:** change the version in `installer.iss` (`MyAppVersion`) and `magma_uplift/__init__.py`, describe
+the changes in `RELEASE_NOTES.md` and `../CHANGELOG.md`, and push to `main`. After a change to the notebook, run
+`tools/make_cells.py` (and `tools/collect_imports.py` if new modules are imported) first.
+
+## Licence and credits
+
+GPL-3.0-or-later (see [`LICENSE.txt`](LICENSE.txt)). The program contains **EVo** 1.1.0 (P. Liggins, O. Shorttle,
+P. B. Rimmer; [github.com/pipliggins/EVo](https://github.com/pipliggins/EVo), GPL-3.0) and **dmodelspy** 0.2
+(W. Crawford; Python port of dMODELS, M. Battaglia, P. F. Cervelli & J. R. Murray, USGS; GPL-3.0), and uses Qt for
+Python (PySide6, LGPL), NumPy, SciPy, pandas, pydantic and Matplotlib.

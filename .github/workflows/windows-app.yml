@@ -1,10 +1,12 @@
 name: windows-app
 
 # Builds the Windows program in windows_app/ with the same script a user runs (build_windows.bat),
-# installs the result silently and tests the installed program.
+# installs the result silently and tests the installed program. On main it also prepares a DRAFT release
+# windows-app-v<version> (version from installer.iss, text from RELEASE_NOTES.md); publishing it is done by hand
+# on the Releases page. A version that is already published is never replaced.
 on:
   push:
-    branches: [windows-app]
+    branches: [main, windows-app]
     paths: ["windows_app/**", ".github/workflows/windows-app.yml"]
   workflow_dispatch:
 
@@ -62,12 +64,20 @@ jobs:
           if-no-files-found: warn
 
       - name: Draft release with the installer (visible only to the repository owner until published)
+        if: github.ref == 'refs/heads/main'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           Compress-Archive -Path screenshots\*, check_all_installed.txt, selftest_program.txt -DestinationPath output\test_results.zip -Force
-          gh release delete windows-app-v1.0.1 --yes 2>$null
-          gh release create windows-app-v1.0.1 (Get-ChildItem output\*.exe).FullName output\MagmaUplift_portable.zip output\test_results.zip `
-            --draft --target ${{ github.sha }} --title "Magma Compressibility and Surface Uplift 1.0.1 (Windows)" `
-            --notes "Windows installer and portable version, built and tested by the windows-app workflow."
+          $v = (Select-String -Path installer.iss -Pattern '#define MyAppVersion "([^"]+)"').Matches[0].Groups[1].Value
+          $tag = "windows-app-v$v"
+          $isDraft = gh release view $tag --json isDraft -q .isDraft 2>$null
+          if ($LASTEXITCODE -eq 0 -and $isDraft -eq "false") {
+            Write-Host "Release $tag is already published and is not replaced. Raise MyAppVersion in installer.iss for a new release."
+            exit 0
+          }
+          if ($LASTEXITCODE -eq 0) { gh release delete $tag --yes }
+          gh release create $tag (Get-ChildItem output\*.exe).FullName output\MagmaUplift_portable.zip output\test_results.zip `
+            --draft --target $env:GITHUB_SHA --title "Magma Compressibility and Surface Uplift $v - Windows app" `
+            --notes-file RELEASE_NOTES.md
