@@ -1,6 +1,6 @@
 ; Inno Setup script of the installer (compiled by build_windows.bat after PyInstaller has built dist\MagmaUplift)
 #define MyAppName "Magma Compressibility and Surface Uplift"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1"
 #define MyAppExe "MagmaUplift.exe"
 
 [Setup]
@@ -8,7 +8,7 @@ AppId={{AFCC7817-F591-4092-9F80-E02A82000B00}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
-AppPublisher=F. Mohammadian
+AppPublisher=Freya Mohammadian
 DefaultDirName={autopf}\MagmaUplift
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes

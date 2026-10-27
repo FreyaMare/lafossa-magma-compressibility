@@ -3,7 +3,7 @@ rem ============================================================================
 rem  Builds the Windows program "Magma Compressibility and Surface Uplift".
 rem  Double-click this file (or run it in a Command Prompt). It needs Python 3.12, 3.13 or 3.14
 rem  from python.org and an internet connection the first time (about 400 MB of packages).
-rem  Results:  output\MagmaUplift_Setup_1.0.0.exe   (installer, if Inno Setup is available)
+rem  Results:  output\MagmaUplift_Setup_1.0.1.exe   (installer, if Inno Setup is available)
 rem            output\MagmaUplift_portable.zip       (the same program without installation)
 rem ===========================================================================================
 setlocal
@@ -68,7 +68,7 @@ echo [6/6] Making the installer with Inno Setup ...
 echo.
 echo  ==========================================================================
 echo   DONE.
-echo   Installer:         %CD%\output\MagmaUplift_Setup_1.0.0.exe
+echo   Installer:         %CD%\output\MagmaUplift_Setup_1.0.1.exe
 echo   Portable version:  %CD%\output\MagmaUplift_portable.zip
 echo   Program folder:    %CD%\dist\MagmaUplift\MagmaUplift.exe
 echo  ==========================================================================
